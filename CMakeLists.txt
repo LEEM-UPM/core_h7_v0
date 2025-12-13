@@ -37,7 +37,8 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    app/main.c
+    poc/fdcan_example.c
+    #poc/blinking_led.c
 )
 
 # Add include paths

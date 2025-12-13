@@ -230,7 +230,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     PB12     ------> UART5_RX
     PB13     ------> UART5_TX
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13;
+    GPIO_InitStruct.Pin = CAM3_RX_Pin|CAM3_TX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -266,7 +266,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     PF8     ------> UART7_RTS
     PF9     ------> UART7_CTS
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9;
+    GPIO_InitStruct.Pin = THYONE_RX_Pin|THYONE_TX_Pin|THYONE_RTS_Pin|THYONE_CTS_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -300,7 +300,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     PE0     ------> UART8_RX
     PE1     ------> UART8_TX
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
+    GPIO_InitStruct.Pin = CAM1_RX_Pin|CAM1_TX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -334,7 +334,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     PD14     ------> UART9_RX
     PD15     ------> UART9_TX
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_14|GPIO_PIN_15;
+    GPIO_InitStruct.Pin = CAM2_RX_Pin|CAM2_TX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -362,7 +362,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     PB12     ------> UART5_RX
     PB13     ------> UART5_TX
     */
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12|GPIO_PIN_13);
+    HAL_GPIO_DeInit(GPIOB, CAM3_RX_Pin|CAM3_TX_Pin);
 
   /* USER CODE BEGIN UART5_MspDeInit 1 */
 
@@ -382,7 +382,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     PF8     ------> UART7_RTS
     PF9     ------> UART7_CTS
     */
-    HAL_GPIO_DeInit(GPIOF, GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9);
+    HAL_GPIO_DeInit(GPIOF, THYONE_RX_Pin|THYONE_TX_Pin|THYONE_RTS_Pin|THYONE_CTS_Pin);
 
   /* USER CODE BEGIN UART7_MspDeInit 1 */
 
@@ -400,7 +400,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     PE0     ------> UART8_RX
     PE1     ------> UART8_TX
     */
-    HAL_GPIO_DeInit(GPIOE, GPIO_PIN_0|GPIO_PIN_1);
+    HAL_GPIO_DeInit(GPIOE, CAM1_RX_Pin|CAM1_TX_Pin);
 
   /* USER CODE BEGIN UART8_MspDeInit 1 */
 
@@ -418,7 +418,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     PD14     ------> UART9_RX
     PD15     ------> UART9_TX
     */
-    HAL_GPIO_DeInit(GPIOD, GPIO_PIN_14|GPIO_PIN_15);
+    HAL_GPIO_DeInit(GPIOD, CAM2_RX_Pin|CAM2_TX_Pin);
 
   /* USER CODE BEGIN UART9_MspDeInit 1 */
 

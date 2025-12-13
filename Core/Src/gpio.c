@@ -33,6 +33,7 @@
 /* USER CODE END 1 */
 
 /** Configure pins
+     PE4   ------> TIM15_CH1N
      PF0   ------> OCTOSPIM_P2_IO0
      PF1   ------> OCTOSPIM_P2_IO1
      PF2   ------> OCTOSPIM_P2_IO2
@@ -65,6 +66,14 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(SD2_CD_GPIO_Port, SD2_CD_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : ALARM_Pin */
+  GPIO_InitStruct.Pin = ALARM_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF4_TIM15;
+  HAL_GPIO_Init(ALARM_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PF0 PF1 PF2 PF3
                            PF4 */
