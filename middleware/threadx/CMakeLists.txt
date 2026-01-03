@@ -1,6 +1,9 @@
 # ThreadX RTOS Library CMakeLists.txt
 cmake_minimum_required(VERSION 3.22)
 
+# Create ThreadX library as STATIC library
+add_library(threadx STATIC)
+
 # ThreadX port-specific assembly sources (Cortex-M7 GNU)
 set(THREADX_PORT_ASM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/ports/cortex_m7/gnu/src/tx_thread_context_restore.S
@@ -189,9 +192,6 @@ set(THREADX_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/ports/cortex_m7/gnu/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../platform/threadx  # For tx_user.h
 )
-
-# Create ThreadX library as OBJECT library
-add_library(threadx OBJECT)
 
 target_compile_definitions(threadx INTERFACE
     TX_INCLUDE_USER_DEFINE_FILE
