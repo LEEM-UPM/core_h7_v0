@@ -27,9 +27,11 @@ add_executable(${CMAKE_PROJECT_NAME})
 
 add_subdirectory(cmake/stm32cubemx)
 add_subdirectory(middleware/threadx)
+add_subdirectory(middleware/filex)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    poc/threadx/main.c
+    poc/filex_usd/main.c
+    #poc/threadx/main.c
     #poc/fdcan_example.c
     #poc/blinking_led.c
 )
@@ -44,4 +46,5 @@ list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
     threadx
+    filex
 )
