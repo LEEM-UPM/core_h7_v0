@@ -56,16 +56,13 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, CAM_EN_Pin|SD1_CD_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(CAM_EN_GPIO_Port, CAM_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, LED_1_Pin|CAN2_STB_Pin|CAN1_STB_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOG, BUTTON2_Pin|BUTTON1_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SD2_CD_GPIO_Port, SD2_CD_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : ALARM_Pin */
   GPIO_InitStruct.Pin = ALARM_Pin;
@@ -85,12 +82,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF9_OCTOSPIM_P2;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CAM_EN_Pin SD1_CD_Pin */
-  GPIO_InitStruct.Pin = CAM_EN_Pin|SD1_CD_Pin;
+  /*Configure GPIO pin : CAM_EN_Pin */
+  GPIO_InitStruct.Pin = CAM_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(CAM_EN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED_1_Pin CAN2_STB_Pin CAN1_STB_Pin */
   GPIO_InitStruct.Pin = LED_1_Pin|CAN2_STB_Pin|CAN1_STB_Pin;
@@ -106,11 +103,16 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : SD1_CD_Pin */
+  GPIO_InitStruct.Pin = SD1_CD_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SD1_CD_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : SD2_CD_Pin */
   GPIO_InitStruct.Pin = SD2_CD_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(SD2_CD_GPIO_Port, &GPIO_InitStruct);
 
 }
