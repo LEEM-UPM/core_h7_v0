@@ -247,16 +247,6 @@ set(FILEX_ERROR_CHECKING_SOURCES
 set(FILEX_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/common/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/ports/generic/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../platform/filex  # For fx_user.h
-)
-
-target_compile_definitions(filex PUBLIC
-    FX_INCLUDE_USER_DEFINE_FILE
-)
-
-# FileX depends on ThreadX (NO standalone)
-target_link_libraries(filex PUBLIC
-    threadx
 )
 
 # Add all sources to the library
@@ -268,4 +258,10 @@ target_sources(filex PRIVATE
 # Set include directories for FileX
 target_include_directories(filex PUBLIC
     ${FILEX_INCLUDE_DIRS}
+)
+
+# FileX depends on ThreadX (NO standalone)
+target_link_libraries(filex PUBLIC
+    project_config
+    threadx
 )

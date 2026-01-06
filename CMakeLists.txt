@@ -23,28 +23,31 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 # Enable CMake support for ASM and C languages
 enable_language(C ASM)
 
+# 2. Global Configuration Definition
+add_library(project_config INTERFACE)
+target_include_directories(project_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/config)
+target_compile_definitions(project_config INTERFACE 
+    TX_INCLUDE_USER_DEFINE_FILE
+    FX_INCLUDE_USER_DEFINE_FILE
+)
+
 add_executable(${CMAKE_PROJECT_NAME})
 
 add_subdirectory(cmake/stm32cubemx)
-add_subdirectory(middleware/threadx)
-add_subdirectory(middleware/filex)
+add_subdirectory(third_party/middlewares/threadx)
+add_subdirectory(third_party/middlewares/filex)
+add_subdirectory(bsp)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    poc/filex_usd/main.c
-    #poc/threadx/main.c
-    #poc/fdcan_example.c
-    #poc/blinking_led.c
+    poc/usd_filex_dma/main.c
 )
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME}
+    bsp_filex_sd_driver
+    threadx
+    filex
+    stm32cubemx
 )
 
 # Remove wrong libob.a library dependency when using cpp files
 list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
-
-# Add linked libraries
-target_link_libraries(${CMAKE_PROJECT_NAME}
-    stm32cubemx
-    threadx
-    filex
-)

@@ -17,11 +17,6 @@ set(THREADX_PORT_ASM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/ports/cortex_m7/gnu/src/tx_timer_interrupt.S
 )
 
-# Platform-specific ThreadX sources (low-level initialization)
-set(THREADX_PLATFORM_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../platform/threadx/tx_initialize_low_level.S
-)
-
 # ThreadX common C sources
 set(THREADX_COMMON_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/src/tx_initialize_high_level.c
@@ -190,19 +185,14 @@ set(THREADX_ERROR_CHECKING_SOURCES
 set(THREADX_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/common/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/ports/cortex_m7/gnu/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../platform/threadx  # For tx_user.h
-)
-
-target_compile_definitions(threadx INTERFACE
-    TX_INCLUDE_USER_DEFINE_FILE
 )
 
 # Add all sources to the library
 target_sources(threadx PRIVATE
     ${THREADX_PORT_ASM_SOURCES}
-    ${THREADX_PLATFORM_SOURCES}
     ${THREADX_COMMON_SOURCES}
     ${THREADX_ERROR_CHECKING_SOURCES}
+    ${PROJECT_SOURCE_DIR}/bsp/threadx/tx_initialize_low_level.S
 )
 
 # Set include directories for ThreadX
@@ -210,3 +200,7 @@ target_include_directories(threadx PUBLIC
     ${THREADX_INCLUDE_DIRS}
 )
 
+# It links with project_config to receive the define TX_INCLUDE_USER_DEFINE_FILE
+target_link_libraries(threadx PUBLIC 
+    project_config
+)
