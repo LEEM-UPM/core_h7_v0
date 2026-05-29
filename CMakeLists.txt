@@ -39,7 +39,9 @@ add_subdirectory(third_party/middlewares/filex)
 add_subdirectory(bsp)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    poc/usd_filex_dma/main.c
+    #poc/usd_filex_dma/main.c
+    #poc/fdcan_example.c
+    poc/blinking_led.c
 )
 
 target_link_libraries(${PROJECT_NAME}

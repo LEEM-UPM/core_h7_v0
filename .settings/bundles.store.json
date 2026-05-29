@@ -19,6 +19,10 @@
     {
       "name": "stlink-gdbserver",
       "version": "7.11.0+st.1"
+    },
+    {
+      "name": "programmer",
+      "version": "2.20.0"
     }
   ]
 }
