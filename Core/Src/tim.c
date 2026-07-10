@@ -25,6 +25,7 @@
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim4;
+DMA_HandleTypeDef hdma_tim4_ch1;
 
 /* TIM4 init function */
 void MX_TIM4_Init(void)
@@ -34,6 +35,7 @@ void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
 
@@ -41,11 +43,20 @@ void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 0;
+  htim4.Init.Prescaler = 1;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 65535;
+  htim4.Init.Period = 124;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
   {
     Error_Handler();
@@ -71,16 +82,36 @@ void MX_TIM4_Init(void)
 
 }
 
-void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
 {
 
-  if(tim_pwmHandle->Instance==TIM4)
+  if(tim_baseHandle->Instance==TIM4)
   {
   /* USER CODE BEGIN TIM4_MspInit 0 */
 
   /* USER CODE END TIM4_MspInit 0 */
     /* TIM4 clock enable */
     __HAL_RCC_TIM4_CLK_ENABLE();
+
+    /* TIM4 DMA Init */
+    /* TIM4_CH1 Init */
+    hdma_tim4_ch1.Instance = DMA1_Stream0;
+    hdma_tim4_ch1.Init.Request = DMA_REQUEST_TIM4_CH1;
+    hdma_tim4_ch1.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_tim4_ch1.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_tim4_ch1.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_tim4_ch1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_tim4_ch1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_tim4_ch1.Init.Mode = DMA_NORMAL;
+    hdma_tim4_ch1.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_tim4_ch1.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_tim4_ch1) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(tim_baseHandle,hdma[TIM_DMA_ID_CC1],hdma_tim4_ch1);
+
   /* USER CODE BEGIN TIM4_MspInit 1 */
 
   /* USER CODE END TIM4_MspInit 1 */
@@ -103,7 +134,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     GPIO_InitStruct.Pin = LED_PWM_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
     HAL_GPIO_Init(LED_PWM_GPIO_Port, &GPIO_InitStruct);
 
@@ -114,16 +145,19 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
 
 }
 
-void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 {
 
-  if(tim_pwmHandle->Instance==TIM4)
+  if(tim_baseHandle->Instance==TIM4)
   {
   /* USER CODE BEGIN TIM4_MspDeInit 0 */
 
   /* USER CODE END TIM4_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM4_CLK_DISABLE();
+
+    /* TIM4 DMA DeInit */
+    HAL_DMA_DeInit(tim_baseHandle->hdma[TIM_DMA_ID_CC1]);
   /* USER CODE BEGIN TIM4_MspDeInit 1 */
 
   /* USER CODE END TIM4_MspDeInit 1 */
