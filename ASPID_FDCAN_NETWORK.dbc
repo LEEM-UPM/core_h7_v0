@@ -32,12 +32,24 @@ NS_ :
     SG_MUL_VAL_
 
 BS_: 
-BU_: Unnamed9933 
+BU_: CORE RF AVIONICS POWER 
+BO_ 1 Nav_output: 0 AVIONICS
+
+BO_ 0 Airbrake_output: 0 CORE
+
 BA_DEF_ BO_ "GenMsgBackgroundColor" STRING ;
 BA_DEF_ BO_ "GenMsgForegroundColor" STRING ;
 BA_DEF_ BO_ "matchingcriteria" INT 0 0;
 BA_DEF_ BO_ "filterlabeling" INT 0 0;
+BA_DEF_ BO_ "matchingcriteria" INT 0 0;
+BA_DEF_ BO_ "filterlabeling" INT 0 0;
+BA_DEF_ BO_ "matchingcriteria" INT 0 0;
+BA_DEF_ BO_ "filterlabeling" INT 0 0;
+BA_ "GenMsgForegroundColor" BO_ 1 "#fffb00";
+BA_ "GenMsgForegroundColor" BO_ 0 "#0433ff";
 BA_DEF_DEF_ "GenMsgBackgroundColor" "#1e1e1e";
 BA_DEF_DEF_ "GenMsgForegroundColor" "#ffffff";
 BA_DEF_DEF_ "matchingcriteria" 0;
-BA_DEF_DEF_ "filterlabeling" 1;
+BA_DEF_DEF_ "filterlabeling" 0;
+BA_DEF_DEF_ "matchingcriteria" 0;
+BA_DEF_DEF_ "filterlabeling" 0;
