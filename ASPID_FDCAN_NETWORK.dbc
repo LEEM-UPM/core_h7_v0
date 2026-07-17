@@ -33,9 +33,38 @@ NS_ :
 
 BS_: 
 BU_: CORE RF AVIONICS POWER 
-BO_ 1 Nav_output: 0 AVIONICS
+BO_ 0 GNSS_out: 64 AVIONICS
+   SG_ GNSS_outSig492 : 7|64@3- (1,0) [0|1] "" CORE
 
-BO_ 0 Airbrake_output: 0 CORE
+BO_ 1 IMU_out: 64 AVIONICS
+   SG_ IMU_outSig114 : 7|64@3- (1,0) [0|1] "" CORE
+
+BO_ 2 IMU_HIGH_G_out: 64 AVIONICS
+   SG_ IMU_HIGH_G_outSig164 : 7|64@3- (1,0) [0|1] "" CORE
+
+BO_ 3 BAR_out: 64 AVIONICS
+   SG_ BAR_outSig484 : 7|64@3- (1,0) [0|1] "" CORE
+
+BO_ 4 AIRBRAKE_out: 64 CORE
+   SG_ AIRBRAKE_outSig215 : 1|32@2- (1,0) [0|1] "" AVIONICS
+
+BO_ 5 RF_out: 64 CORE
+   SG_ RF_outSig264 : 7|64@3- (1,0) [0|1] "" RF
+
+BO_ 6 PYRO_out: 64 CORE
+   SG_ PYRO_outSig75 : 1|1@0+ (1,0) [0|1] "" POWER
+
+BO_ 7 VSENSING_out: 32 POWER
+   SG_ VSENSING_outSig452 : 1|32@2- (1,0) [0|1] "" CORE
+
+BO_ 8 ISENSING_out: 32 POWER
+   SG_ ISENSING_outSig402 : 1|32@2- (1,0) [0|1] "" CORE
+
+BO_ 9 CONFIG_out: 64 RF
+   SG_ CONFIG_outSig168 : 7|64@3- (1,0) [0|1] "" CORE
+
+BO_ 10 EMER_DEPLOY_out: 32 RF
+   SG_ EMER_DEPLOY_outSig456 : 1|1@0- (1,0) [0|1] "" POWER
 
 BA_DEF_ BO_ "GenMsgBackgroundColor" STRING ;
 BA_DEF_ BO_ "GenMsgForegroundColor" STRING ;
@@ -45,11 +74,23 @@ BA_DEF_ BO_ "matchingcriteria" INT 0 0;
 BA_DEF_ BO_ "filterlabeling" INT 0 0;
 BA_DEF_ BO_ "matchingcriteria" INT 0 0;
 BA_DEF_ BO_ "filterlabeling" INT 0 0;
-BA_ "GenMsgForegroundColor" BO_ 1 "#fffb00";
-BA_ "GenMsgForegroundColor" BO_ 0 "#0433ff";
+BA_DEF_ BO_ "matchingcriteria" INT 0 0;
+BA_DEF_ BO_ "filterlabeling" INT 0 0;
+BA_ "GenMsgForegroundColor" BO_ 0 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 1 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 2 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 3 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 4 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 5 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 6 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 7 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 8 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 9 "#000000";
+BA_ "GenMsgForegroundColor" BO_ 10 "#000000";
 BA_DEF_DEF_ "GenMsgBackgroundColor" "#1e1e1e";
 BA_DEF_DEF_ "GenMsgForegroundColor" "#ffffff";
 BA_DEF_DEF_ "matchingcriteria" 0;
 BA_DEF_DEF_ "filterlabeling" 0;
 BA_DEF_DEF_ "matchingcriteria" 0;
 BA_DEF_DEF_ "filterlabeling" 0;
+VAL_ 8 ISENSING_outSig402 0 "";

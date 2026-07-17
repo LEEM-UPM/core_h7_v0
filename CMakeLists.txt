@@ -40,14 +40,10 @@ add_subdirectory(third_party/middlewares/filex)
 add_subdirectory(bsp)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-<<<<<<< Updated upstream
-    poc/usd_filex_dma/main.c
-=======
     # poc/usd_filex_dma/main.c
     # poc/blinking_led.c
-    poc/core_rf_fdcan_test.c
+    poc/fdcan_example.c
     Core/Src/ASPID_FDCAN_NETWORK.c
->>>>>>> Stashed changes
 )
 
 target_link_libraries(${PROJECT_NAME}
