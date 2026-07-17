@@ -31,7 +31,8 @@ target_compile_definitions(project_config INTERFACE
     FX_INCLUDE_USER_DEFINE_FILE
 )
 
-add_executable(${CMAKE_PROJECT_NAME})
+add_executable(${CMAKE_PROJECT_NAME}
+    Core/Inc/ASPID_FDCAN_NETWORK.h)
 
 add_subdirectory(cmake/stm32cubemx)
 add_subdirectory(third_party/middlewares/threadx)
@@ -39,7 +40,10 @@ add_subdirectory(third_party/middlewares/filex)
 add_subdirectory(bsp)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    poc/usd_filex_dma/main.c
+    # poc/usd_filex_dma/main.c
+    # poc/blinking_led.c
+    poc/fdcan_example.c
+    Core/Src/ASPID_FDCAN_NETWORK.c
 )
 
 target_link_libraries(${PROJECT_NAME}
