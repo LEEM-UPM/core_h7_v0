@@ -39,7 +39,14 @@ add_subdirectory(third_party/middlewares/filex)
 add_subdirectory(bsp)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    poc/usd_filex_dma/main.c
+    poc/can_tx_rx_rtos/main.c
+    poc/can_tx_rx_rtos/can_rx_thread.c
+    poc/can_tx_rx_rtos/can_shared_data.c
+    poc/can_tx_rx_rtos/can_tx_test.c
+)
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    poc/can_tx_rx_rtos
 )
 
 target_link_libraries(${PROJECT_NAME}
