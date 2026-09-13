@@ -1,0 +1,4 @@
+[submodule "third_party/can_protocol"]
+	path = third_party/can_protocol
+	url = https://github.com/LEEM-UPM/can_protocol.git
+	branch = 1-etructura-base-del-protocolo

@@ -21,7 +21,7 @@
 #include "fdcan.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "can_protocol/can_bus_config.h"
 /* USER CODE END 0 */
 
 FDCAN_HandleTypeDef hfdcan1;
@@ -44,14 +44,14 @@ void MX_FDCAN1_Init(void)
   hfdcan1.Init.AutoRetransmission = ENABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
   hfdcan1.Init.ProtocolException = ENABLE;
-  hfdcan1.Init.NominalPrescaler = 5;
-  hfdcan1.Init.NominalSyncJumpWidth = 4;
-  hfdcan1.Init.NominalTimeSeg1 = 15;
-  hfdcan1.Init.NominalTimeSeg2 = 4;
-  hfdcan1.Init.DataPrescaler = 5;
-  hfdcan1.Init.DataSyncJumpWidth = 4;
-  hfdcan1.Init.DataTimeSeg1 = 15;
-  hfdcan1.Init.DataTimeSeg2 = 4;
+  hfdcan1.Init.NominalPrescaler = 4;
+  hfdcan1.Init.NominalSyncJumpWidth = 3;
+  hfdcan1.Init.NominalTimeSeg1 = 21;
+  hfdcan1.Init.NominalTimeSeg2 = 3;
+  hfdcan1.Init.DataPrescaler = 4;
+  hfdcan1.Init.DataSyncJumpWidth = 3;
+  hfdcan1.Init.DataTimeSeg1 = 21;
+  hfdcan1.Init.DataTimeSeg2 = 3;
   hfdcan1.Init.MessageRAMOffset = 0;
   hfdcan1.Init.StdFiltersNbr = 0;
   hfdcan1.Init.ExtFiltersNbr = 0;
@@ -71,7 +71,15 @@ void MX_FDCAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN FDCAN1_Init 2 */
-
+  /* FDCAN1 es la red CAN1 común: comprueba que cumple el bus (ICD, 2.2) */
+  if ((hfdcan1.Init.FrameFormat != FDCAN_FRAME_FD_NO_BRS) ||
+      !CAN_BUS_TIMING_IS_VALID(HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN),
+                               hfdcan1.Init.NominalPrescaler,
+                               hfdcan1.Init.NominalTimeSeg1,
+                               hfdcan1.Init.NominalTimeSeg2))
+  {
+    Error_Handler();
+  }
   /* USER CODE END FDCAN1_Init 2 */
 
 }

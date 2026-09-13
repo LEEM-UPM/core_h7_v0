@@ -37,6 +37,7 @@ add_subdirectory(cmake/stm32cubemx)
 add_subdirectory(third_party/middlewares/threadx)
 add_subdirectory(third_party/middlewares/filex)
 add_subdirectory(bsp)
+add_subdirectory(third_party/can_protocol)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     #poc/can_tx_rx_rtos/main.c
@@ -58,6 +59,7 @@ target_link_libraries(${PROJECT_NAME}
     threadx
     filex
     stm32cubemx
+    can_protocol
 )
 
 # Remove wrong libob.a library dependency when using cpp files
