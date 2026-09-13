@@ -39,14 +39,18 @@ add_subdirectory(third_party/middlewares/filex)
 add_subdirectory(bsp)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    poc/can_tx_rx_rtos/main.c
-    poc/can_tx_rx_rtos/can_rx_thread.c
-    poc/can_tx_rx_rtos/can_shared_data.c
-    poc/can_tx_rx_rtos/can_tx_test.c
+    #poc/can_tx_rx_rtos/main.c
+    #poc/can_tx_rx_rtos/can_rx_thread.c
+    #poc/can_tx_rx_rtos/can_shared_data.c
+    #poc/can_tx_rx_rtos/can_tx_test.c
+    poc/flight_software/flight_software.c
+    poc/flight_software/sensor_board.c
+    Drivers/Sys_utilities/sys_utilities.c
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    poc/can_tx_rx_rtos
+    poc/flight_software
+    Drivers/Sys_utilities
 )
 
 target_link_libraries(${PROJECT_NAME}
