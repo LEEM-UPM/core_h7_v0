@@ -64,6 +64,11 @@
 
 /* USER CODE BEGIN 1 */
 
+/* El ordenador de vuelo no usa ThreadX (bucle principal): FileX en modo
+ * standalone, con el driver Drivers/Sd_card. La PoC poc/usd_filex_dma (con
+ * ThreadX y bsp/filex) necesita quitar esta línea. */
+#define FX_STANDALONE_ENABLE
+
 /* USER CODE END 1 */
 
 /* Define various build options for the FileX port.  The application should either make changes

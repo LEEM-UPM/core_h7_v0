@@ -65,13 +65,46 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
   if(pcdHandle->Instance==USB_OTG_HS)
   {
   /* USER CODE BEGIN USB_OTG_HS_PCD_MspInit 0 */
+    /* El USB necesita 48 MHz exactos. SystemClock_Config() no enciende el
+     * HSI48, así que se enciende aquí y se sincroniza con el SOF del propio
+     * USB (CRS) para tener la precisión que exige el estándar. */
+    RCC_OscInitTypeDef OscInitStruct = {0};
+    OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48;
+    OscInitStruct.HSI48State = RCC_HSI48_ON;
+    OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+    if (HAL_RCC_OscConfig(&OscInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
 
+    __HAL_RCC_CRS_CLK_ENABLE();
+    RCC_CRSInitTypeDef CrsInitStruct = {0};
+    CrsInitStruct.Prescaler = RCC_CRS_SYNC_DIV1;
+    CrsInitStruct.Source = RCC_CRS_SYNC_SOURCE_USB1; /* SOF de USB_OTG_HS */
+    CrsInitStruct.Polarity = RCC_CRS_SYNC_POLARITY_RISING;
+    CrsInitStruct.ReloadValue = __HAL_RCC_CRS_RELOADVALUE_CALCULATE(48000000U, 1000U);
+    CrsInitStruct.ErrorLimitValue = RCC_CRS_ERRORLIMIT_DEFAULT;
+    CrsInitStruct.HSI48CalibrationValue = RCC_CRS_HSI48CALIBRATION_DEFAULT;
+    HAL_RCCEx_CRSConfig(&CrsInitStruct);
+
+    /* PA11 (USB_N) y PA12 (USB_P) en función alternativa AF10 (OTG1_FS en los
+     * STM32H72x). CubeMX no genera esta configuración para USB_OTG_HS en modo
+     * Device_Only_FS; sin ella el pull-up de D+ no llega al conector y el PC
+     * no detecta ningún dispositivo. Igual que en Icaro_software (H747). */
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    GPIO_InitStruct.Pin = GPIO_PIN_11 | GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF10_OTG1_FS;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
   /* USER CODE END USB_OTG_HS_PCD_MspInit 0 */
 
   /** Initializes the peripherals clock
   */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-    PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
+    PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
       Error_Handler();
@@ -83,6 +116,10 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 
     /* USB_OTG_HS clock enable */
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+
+    /* USB_OTG_HS interrupt Init */
+    HAL_NVIC_SetPriority(OTG_HS_IRQn, 6, 0);
+    HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
   /* USER CODE BEGIN USB_OTG_HS_PCD_MspInit 1 */
 
   /* USER CODE END USB_OTG_HS_PCD_MspInit 1 */
@@ -99,6 +136,9 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
   /* USER CODE END USB_OTG_HS_PCD_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_USB_OTG_HS_CLK_DISABLE();
+
+    /* USB_OTG_HS interrupt Deinit */
+    HAL_NVIC_DisableIRQ(OTG_HS_IRQn);
   /* USER CODE BEGIN USB_OTG_HS_PCD_MspDeInit 1 */
 
   /* USER CODE END USB_OTG_HS_PCD_MspDeInit 1 */

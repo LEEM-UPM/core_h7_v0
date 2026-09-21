@@ -1,0 +1,228 @@
+PENDIENTES (todas las placas)
+============================
+
+Leyenda:  [ ] pendiente   [x] hecho
+          IMPL = implementar   PROBAR = probar en placa   DECIDIR = decision de diseño
+          REVISAR = comprobar en esquematico / CubeMX
+
+Al terminar algo, marcarlo con [x] (o borrarlo) en el mismo commit.
+
+
+---------------------------------------------------------------------------
+PROTOCOLO CAN1 (third_party/can_protocol)
+---------------------------------------------------------------------------
+[ ] IMPL    Commitear el clon del protocolo (ICD 0.2 completo: wake up, pirotecnia,
+            POWER_RAILS, calibracion, CMD_RF_TRANSMIT, INIT_STATUS), subirlo y
+            actualizar el submodule en las 4 placas. can_ids.h ya tiene TODOS los IDs.
+[x] IMPL    Submodule can_protocol actualizado en las 4 placas y can_ids_pending.h
+            borrado: todas usan ya can_protocol/can_ids.h.
+[ ] DECIDIR Que hace una placa si la version del wake up no es compatible
+            (ahora: no responde y sigue esperando).
+[x] DECIDIR Placa que arranca despues de la ventana de 5 s del wake up: el core sigue
+            reenviando CMD_WAKE_UP a 1 Hz mientras falte alguna placa (sys_update), y
+            todas las placas responden a cada wake up, no solo al primero.
+[ ] IMPL    APLAZADO: heartbeat por placa (clase 6 del ICD, sin definir). Hace falta
+            para detectar una placa que se reinicia cuando el core ya las daba a
+            todas por despiertas: en ese caso no se reenvia el wake up.
+[ ] DECIDIR Longitud maxima de datos (ICD dice 32 bytes, pendiente de confirmar).
+[ ] DECIDIR Retransmision automatica por nodo (avionica la tiene desactivada en FDCAN1).
+[ ] DECIDIR Conector y pines del bus, que nodos llevan la terminacion de 120 ohm,
+            longitud total del bus.
+
+
+---------------------------------------------------------------------------
+CORE (core_h7_v0)
+---------------------------------------------------------------------------
+[ ] PROBAR  Cadena POWER_RAILS completa: core pide 0x122 a 1 Hz, power responde 0x222,
+            state.power_rails se actualiza.
+[ ] REVISAR Abrir el .ioc en CubeMX y comprobar que acepta los cambios hechos a mano
+            (FDCAN1 RX FIFO 16x32, 3 filtros, IRQ FDCAN1_IT0, FDCAN2 MessageRAMOffset=256).
+[ ] DECIDIR HAL_Delay(1000) al inicio de sys_init: se puede quitar (el wake up se repite 5 s).
+[ ] IMPL    Quitar las tramas de prueba de flight_software.c cuando haya mensajes reales:
+            CAN1 0x710 (contador debug) y CAN2 0x200 (servo 0/255).
+[ ] IMPL    Usar sensor_board_get_data() (log, reenvio...), ahora hay un TODO.
+[x] IMPL    Enviar datos de debug desde el core (estado de las placas, medidas...).
+            Por USB (puerto COM virtual), App/debug_console.c.
+[x] PROBAR  Consola de debug por USB: el PC reconoce el puerto COM ("LEEM Core H7 (debug)").
+[x] REVISAR USB sin enumerar: VDD33USB (pin 95) sin tension (PWR_CR3 USB33RDY=0). Era un
+            fallo de hardware, ya corregido en la placa.
+[ ] REVISAR Corregir en el esquematico/PCB la alimentacion de VDD33USB (pin 95) para la
+            siguiente version de la placa, si no esta ya hecho.
+[ ] REVISAR Abrir el .ioc en CubeMX y comprobar los cambios a mano del USB: reloj USB desde
+            HSI48, interrupcion OTG_HS (prioridad 6). HSI48 + CRS y los pines PA11/PA12
+            en AF10 (CubeMX no los genera) estan en el USER CODE de usb_otg.c.
+[ ] REVISAR UART8 (PE1) y UART9 (PD15): con el conversor USB-serie la senal salia con
+            conflicto (nivel alto a 4,4 V, ceros a media tension) en las dos. Revisar el
+            conversor/cableado y comprobar que PE1 y PD15 no se han danado.
+[x] IMPL    Zumbador (red ALARM, PE4 = TIM15_CH1N): Drivers/Buzzer (frecuencia variable,
+            PWM 50 %) y App/sounds.c (melodia al arrancar, antes del wake up).
+[x] PROBAR  Melodia de arranque: se oye bien (circuito activo a nivel alto).
+[ ] DECIDIR La melodia (Bella Ciao) dura ~13 s y retrasa el wake up de las placas. Acortarla,
+            subir STARTUP_SONG_BPM o desactivarla (SOUNDS_STARTUP_ENABLE 0) para vuelo.
+[ ] IMPL    Avisos sonoros utiles (errores, placas que no responden, estado armado...).
+[x] IMPL    Los 6 LEDs RGB en cadena (WL-ICLED 1312020030000, tipo WS2812) en PD12:
+            Drivers/Leds (TIM4_CH1 + DMA, 800 kbit/s) y App/led_show.c (secuencia de
+            arranque de ~4 s antes de la melodia).
+[x] PROBAR  LEDs RGB: la secuencia de arranque se ve bien y los colores salen correctos.
+[ ] IMPL    Usar los LEDs como indicador de estado en vuelo (placas despiertas, fix del
+            GPS, continuidad de pirotecnicos, armado...) en vez de solo al arrancar.
+[ ] REVISAR TIM4 y el DMA de los LEDs se configuran a mano en leds.c (MX_TIM4_Init no se
+            llama, el .ioc no tiene DMA ni los tiempos correctos). Revisar en CubeMX.
+[ ] REVISAR TIM15 no esta activado en el .ioc (se configura a mano en buzzer.c). Activarlo
+            en CubeMX (TIM15 CH1N PWM) o dejarlo asi.
+[x] IMPL    Lectura y escritura de archivos en las dos SD: App/storage.c (FileX standalone)
+            sobre Drivers/Sd_card (SDMMC1/2, 4 bits, DMA). Al arrancar: CORE_TEST.TXT
+            (escribe, relee y compara) y BOOTCNT.TXT (contador de arranques). En consola.
+[ ] PROBAR  (Esperando tarjetas nuevas, FAT32 <= 32 GB, una por ranura.)
+            SD con una tarjeta sana. La de 2 GB (SDSC) de SD1 se lee bien pero descarta
+            TODAS las escrituras sin dar error (DMA y polling, 1 y 8 bloques, CSD sin
+            proteccion): parece gastada / en solo lectura. Probar tambien en el PC.
+[ ] PROBAR  SD2 con tarjeta (ahora no responde, HAL 0x4 = sin respuesta a comandos).
+[ ] REVISAR Polaridad del pin de deteccion: SD1 con tarjeta CD=0, SD2 (sin tarjeta?) CD=1.
+            Si se confirma, no intentar montar con CD=1 y detectar insercion/extraccion.
+[ ] DECIDIR Velocidad del bus SD: ahora 625 kHz (SD_CARD_CLOCK_DIV 16 en sd_card.c, como el
+            .ioc). Subir cuando funcione (p. ej. div 2 = 5 MHz) para el log de vuelo.
+[ ] DECIDIR Tarjetas de mas de 32 GB vienen en exFAT: FX_ENABLE_EXFAT (licencia Microsoft)
+            o formatear en FAT32.
+[ ] IMPL    Log de vuelo en las SD (que datos, formato, frecuencia, las dos a la vez).
+[ ] REVISAR MX_SDMMC1/2_SD_Init no se llaman (hacen Error_Handler sin tarjeta): la
+            configuracion del SDMMC esta repetida en sd_card_init(). La PoC
+            poc/usd_filex_dma necesita quitar FX_STANDALONE_ENABLE de config/fx_user.h
+            y volver a compilar bsp/.
+
+
+---------------------------------------------------------------------------
+POWER (power_g4_v0)
+---------------------------------------------------------------------------
+[ ] PROBAR  Medidas de power_monitor.c frente a polimetro (3V3, 5V, 11V: tension y corriente).
+[ ] IMPL    Calibrar las lecturas de power (tensiones y corrientes) frente a polimetro y
+            ajustar las constantes CAL_* y divisores de power_monitor.c.
+[ ] PROBAR  Drivers/Analog: ADC5 y PA0/PA2 estan fuera de CubeMX y los OPAMP 2/3/4 se
+            arrancan por primera vez (nunca probado en placa).
+[ ] REVISAR Shunts reales de 3V3, 5V y 11V en el esquematico (ahora 5 mohm sin confirmar).
+            Si se corrigen, dejar CAL_*_FACTOR en 1.0 y offset en 0 y volver a medir.
+[ ] REVISAR INA138 alimentado a +5 V con salida directa a PA1 (pin de 3,3 V): por encima de
+            ~3,3 V / (78 * R_shunt) (~8,5 A con 5 mohm) satura y sobretensiona el pin.
+[ ] DECIDIR AllPyroCheck() tras el wake up enciende los 4 pirotecnicos y bloquea 5 s
+            (no se atiende CAN). ¿Se mantiene en vuelo? Seguridad (RBF).
+[ ] DECIDIR Borrar ThreeV_Current()/FiveV_Current() (duplican power_monitor.c) y la
+            declaracion de ElevenV_Current() sin implementar.
+[ ] DECIDIR Para que se usa CAN2 (ID 0x400 en formato clasico, filtro que acepta todo).
+[ ] REVISAR OPAMP6 (Pyro2_DAC, seguidor de DAC) no se arranca en ningun sitio.
+[ ] DECIDIR ¿Hace falta confirmacion de CMD_PYRO_FIRE en el ICD?
+[ ] IMPL    Consumo en las lineas de los pirotecnicos (Pyro1 y Pyro2) por CAN. Las entradas
+            ya estan en Drivers/Analog (ANALOG_I_PYRO1/2, y tension ANALOG_V_PYRO1/2);
+            faltan la electronica en power_monitor.c y el mensaje en el ICD.
+
+
+---------------------------------------------------------------------------
+AVIONICA (sensores_avionica_g4_v0)
+---------------------------------------------------------------------------
+[x] IMPL    Llamar a CanNode_Poll() en el bucle principal de App/main.c para
+            responder si el core se resetea.
+[ ] PROBAR  Firmware tras la reorganizacion (App/main.c, sensorsI2c, sensorIrq, sensorsUart).
+[x] IMPL    Que la avionica NO se cuelgue si falla un sensor: bucles de espera acotados en
+            barometer.c / imu.c / imu2.c (antes esperaban para siempre), timeouts de I2C
+            de 1000 a 20 ms, sensor caido se salta y se reintenta cada 5 s, y si se caen
+            todos los de un bus se reinicia el periferico I2C. SensorsI2c_ActiveMask().
+[x] PROBAR  Tolerancia a fallos de la avionica: con un sensor desconectado el resto
+            sigue funcionando y el sensor sale marcado en la consola del core.
+[ ] IMPL    Comando CAN "que sensores estan activos": el core lo pide y la avionica
+            responde con un mapa de bits (baro1, baro2, IMU1, IMU2, magnetometro, GPS,
+            VN-100) diciendo cuales responden. Definirlo en el ICD (seria 6.11 / 6.12,
+            IDs 0x132 y 0x232), implementarlo en avionica y core, y mostrarlo en la
+            consola de debug. La avionica ya lleva la cuenta: SensorsI2c_ActiveMask().
+[x] IMPL    INIT_STATUS (ICD 6.11, 0x22F/0x23F/0x24F): cada placa dice al core con que
+            componentes ha arrancado (uint32 ok + uint32 supported), sin que se lo pidan
+            y tras cada wake up. Hecho en avionica (7 bits: baros, IMUs, mag, GPS,
+            VN-100) y en el core (sys_state + consola, al arrancar y en cada informe).
+[ ] IMPL    INIT_STATUS en power (0x22F) y rf (0x24F): definir sus bits en el ICD
+            (power: ADC/OPAMPs/pirotecnia; rf: SX1262) e implementarlo.
+[x] PROBAR  INIT_STATUS de la avionica: la consola del core muestra COMPONENTES INICIADOS.
+
+[x] IMPL    Rutina de calibracion de los sensores de avionica (ICD 6.8/6.9: core envia
+            0x131, avionica calibra y responde 0x231). App/calibration.c.
+[x] DECIDIR Rutinas concretas de calibracion: baros 1 s de media (presion base, no se
+            resta), giroscopios 2 s de media (offset), acelerometros 2 s de media menos
+            la proyeccion de g (offset). Todo a la vez.
+[x] DECIDIR tilt_angle en grados. Resultados solo en RAM (se pierden al resetear).
+[x] IMPL    Segundo filtro de FDCAN1 (indice 1: 0x130/0x7F0) en CanNode_Init.
+[ ] PROBAR  Calibracion completa: core envia 0x131 al arrancar, avionica tarda ~2 s y
+            responde 0x231, state.avionics_calibration_status pasa a DONE.
+[x] IMPL    GPS por CAN2: GGA (0x106) y RMC (0x107) en enteros, 10 Hz. Aviónica configura
+            el MAX-M10S por UBX al arrancar; el core los decodifica (sensor_board.c)
+            y los muestra en la consola.
+[x] PROBAR  GPS completo en interior: GGA y RMC llegan al core a 10 Hz (config UBX OK),
+            sin fix. Causa del primer intento sin datos: GPS_RST (PA6) quedaba a
+            nivel bajo (modulo en reset). Ya lo suelta GPS_Init().
+[x] PROBAR  GPS con cielo abierto: fix, coordenadas, velocidad y fecha correctos.
+[x] DECIDIR Antena del GPS (J1) activa: SensorsUart_Init() pone ACT_ANTENNA (PA4) a nivel
+            alto (VCC_RF a la antena). Comprobar que la antena admite 3,3 V.
+[ ] REVISAR Esquematico GPS: V_BCKP (pin 6) sin conectar. u-blox recomienda unirlo a VCC
+            si no hay bateria de respaldo. Si el modulo no arranca bien, puentearlo.
+[ ] REVISAR .ioc aviónica: PA6 GPS_RST con nivel inicial bajo (modulo en reset hasta
+            GPS_Init()); se puede poner nivel inicial alto en CubeMX.
+[ ] REVISAR MAX-M10S a 10 Hz con varias constelaciones: comprobar que mantiene 10 Hz
+            (el M10 puede limitar la tasa con GPS+GAL+GLO+BDS a la vez).
+[ ] DECIDIR ¿Guardar la configuracion del GPS en su flash (capa FLASH) o seguir
+            enviandola en RAM en cada arranque (~0,5 s)?
+[ ] IMPL    VN-100 por CAN2 (ahora solo se lee).
+[ ] REVISAR LPUART1 del .ioc esta a 209700 (valor por defecto de CubeMX); GPS_Init() la
+            reconfigura con prescaler /8 a 115200. Ajustar el .ioc.
+[ ] REVISAR Montaje real: eje de la placa que apunta a la ogiva (supuesto +Z) y
+            orientacion de los ejes de cada IMU respecto a la placa.
+[ ] DECIDIR Hacia que lado se inclina el cohete: CALIBRATION_TILT_TOWARD en
+            App/calibration.c (inventado: +X). Con angulo 0 no influye.
+[ ] REVISAR Signo de la proyeccion de g al inclinar: comprobar en banco con un angulo
+            conocido (p. ej. 30 grados) que el offset del acelerometro sale ~0.
+
+
+---------------------------------------------------------------------------
+RF (rf_g4_v0)
+---------------------------------------------------------------------------
+[ ] PROBAR  Wake up con el core (respuesta 0x240) y que state.rf pase a true.
+[ ] PROBAR  Radio con la configuracion verificada: TX_DONE en ~41 ms, 0 fallos.
+[ ] PROBAR  Consola en LPUART1 (TX PB11): el comentario antiguo decia USART3 con TX en PB10.
+[ ] REVISAR Abrir el .ioc en CubeMX y comprobar los cambios a mano (LPUART1 115200,
+            PA2 NSS arranca en alto, velocidad VERY_HIGH en SPI, PC13/PC14 entradas).
+[ ] REVISAR +14 dBm con SetPaConfig 0x02/0x02: la tabla del datasheet parece suponer
+            SetTxParams a +22 dBm; la potencia real podria ser menor.
+[ ] DECIDIR Subir la potencia: la banda 869,4-869,65 permite 500 mW e.r.p. (27 dBm) y el
+            SX1262 llega a +22 dBm. De momento se deja en +14 dBm (config verificada);
+            subir tras probar la banda nueva, comprobando consumo (~118 mA en TX a
+            +22 dBm) y adaptacion de antena.
+[x] DECIDIR Banda: se pasa a 869,525 MHz (sub-banda 869,4-869,65: 500 mW e.r.p. y 10 %
+            de ciclo de trabajo). Con BW125 ocupa 869,4625-869,5875 MHz, dentro.
+[ ] PROBAR  Radio en la banda nueva (869,525 MHz): repetir la prueba de TX_DONE y fallos.
+[ ] DECIDIR Ciclo de trabajo total: baliza a 1 Hz = 4,1 % + lo que mande el core, sobre
+            el 10 % que permite la banda.
+[ ] DECIDIR Sync word 0x34 (LoRaWAN publico): la estacion de tierra debe usar el mismo.
+[ ] IMPL    Puente CAN <-> LoRa (borrado de poc/aplication): rehacer sobre la estructura nueva.
+[x] IMPL    CMD_RF_TRANSMIT (0x140, ICD 6.10): el core manda bytes y la RF los transmite
+            tal cual por LoRa. Core: App/sys_rf.c (sys_rf_transmit) y prueba cada 5 s en
+            flight_software.c. RF: can_node + radio_transmit().
+[ ] PROBAR  CMD_RF_TRANSMIT: en la consola de la RF (LPUART1) debe salir "TX CAN: n bytes,
+            TX_DONE"; en la del core, "radio: N paquetes enviados".
+[x] IMPL    Firmware de receptor para una segunda placa RF: poc/radio_receiver/main.c
+            (RX continuo, imprime paquete, RSSI, SNR, texto y hex por LPUART1).
+[ ] REVISAR HARDWARE: en la 2a placa RF (la del receptor) el SX1262 no contesta por SPI:
+            todas las lecturas vuelven a 0xFF (chip_mode 0x07, IRQ 0xFFFF, GetDeviceErrors
+            0xFFFF). Comprobar alimentacion (VBAT, VBAT_IO), VREG pin 7 (~1,55 V con el
+            chip despierto), NRESET (PA0) en alto, soldadura de NSS/SCK/MISO/MOSI y el
+            cristal de 32 MHz. El firmware receptor ya avisa al arrancar si no responde.
+[ ] PROBAR  Enlace completo, cuando se arregle esa placa: una RF transmitiendo (baliza +
+            lo que manda el core) y otra con el firmware receptor.
+[ ] IMPL    Recepcion en la placa de vuelo (tierra -> cohete) y su mensaje CAN hacia el
+            core: la RF de vuelo solo transmite.
+[ ] IMPL    Mas mensajes CAN de la RF: estado de la radio (paquetes enviados, fallos, RSSI)
+            hacia el core.
+
+[ ] IMPL    Quitar el envio de prueba de radio de flight_software.c (RF_TX_TEST_PERIOD_MS)
+            cuando haya telemetria real.
+
+
+---------------------------------------------------------------------------
+GENERAL
+---------------------------------------------------------------------------
+[ ] IMPL    Nada esta commiteado en core, power, avionica ni rf: revisar git status y
+            commitear por partes.

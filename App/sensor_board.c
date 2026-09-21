@@ -2,11 +2,17 @@
 
 #include <string.h>
 
+#include "can_protocol/can_pack.h"
+
 #define SENSOR_BOARD_BARO_NFLOATS 2U
 #define SENSOR_BOARD_IMU_NFLOATS 6U
 #define SENSOR_BOARD_MAG_NFLOATS 3U
 
 #define SENSOR_BOARD_HEADER_BYTES 5U /* id_sensor + timestamp */
+
+/* Bytes de enteros tras la cabecera en las tramas del GPS */
+#define SENSOR_BOARD_GPS_GGA_BYTES 20U
+#define SENSOR_BOARD_GPS_RMC_BYTES 23U
 
 /*
  * Margen para distinguir "muestra algo desordenada / latencia" de "reset de
@@ -100,12 +106,47 @@ static uint64_t _ts_unwrap(uint32_t raw, uint32_t rx_tick_ms) {
   return _ts.last_us - back;
 }
 
+static void _decode_gps_gga(const uint8_t *p, uint64_t t_us) {
+  gps_gga_data_t *d = &_data.gps_gga;
+  d->time_ms = can_get_u32_le(&p[0]);
+  d->latitude_e7 = can_get_i32_le(&p[4]);
+  d->longitude_e7 = can_get_i32_le(&p[8]);
+  d->altitude_mm = can_get_i32_le(&p[12]);
+  d->fix_quality = can_get_u8(&p[16]);
+  d->satellites = can_get_u8(&p[17]);
+  d->hdop_x100 = can_get_u16_le(&p[18]);
+  d->timestamp_us = t_us;
+  d->count++;
+}
+
+static void _decode_gps_rmc(const uint8_t *p, uint64_t t_us) {
+  gps_rmc_data_t *d = &_data.gps_rmc;
+  d->time_ms = can_get_u32_le(&p[0]);
+  d->latitude_e7 = can_get_i32_le(&p[4]);
+  d->longitude_e7 = can_get_i32_le(&p[8]);
+  d->speed_mmps = can_get_i32_le(&p[12]);
+  d->course_cdeg = can_get_u16_le(&p[16]);
+  d->year = can_get_u16_le(&p[18]);
+  d->month = can_get_u8(&p[20]);
+  d->day = can_get_u8(&p[21]);
+  d->valid = can_get_u8(&p[22]);
+  d->timestamp_us = t_us;
+  d->count++;
+}
+
 uint8_t sensor_board_process_frame(uint32_t can_id, const uint8_t *data,
                                    uint32_t len, uint32_t rx_tick_ms) {
-  /* N sale de la tabla según el ID, nunca de la longitud de la trama */
-  uint32_t nfloats;
+  /* Longitud mínima según el ID, nunca según la longitud de la trama */
+  uint32_t nfloats = 0U;
+  uint32_t min_len;
 
   switch (can_id) {
+  case SENSOR_BOARD_CAN_ID_GPS_GGA:
+    min_len = SENSOR_BOARD_HEADER_BYTES + SENSOR_BOARD_GPS_GGA_BYTES;
+    break;
+  case SENSOR_BOARD_CAN_ID_GPS_RMC:
+    min_len = SENSOR_BOARD_HEADER_BYTES + SENSOR_BOARD_GPS_RMC_BYTES;
+    break;
   case SENSOR_BOARD_CAN_ID_BARO1:
   case SENSOR_BOARD_CAN_ID_BARO2:
     nfloats = SENSOR_BOARD_BARO_NFLOATS;
@@ -121,8 +162,11 @@ uint8_t sensor_board_process_frame(uint32_t can_id, const uint8_t *data,
     _data.err_unknown_id++;
     return 0U;
   }
+  if (nfloats > 0U) {
+    min_len = SENSOR_BOARD_HEADER_BYTES + 4U * nfloats;
+  }
 
-  if (len < SENSOR_BOARD_HEADER_BYTES + 4U * nfloats) {
+  if (len < min_len) {
     _data.err_short_frame++;
     return 0U;
   }
@@ -138,6 +182,14 @@ uint8_t sensor_board_process_frame(uint32_t can_id, const uint8_t *data,
   _read_floats(data, v, nfloats);
 
   switch (can_id) {
+  case SENSOR_BOARD_CAN_ID_GPS_GGA:
+    _decode_gps_gga(&data[SENSOR_BOARD_HEADER_BYTES], t_us);
+    break;
+
+  case SENSOR_BOARD_CAN_ID_GPS_RMC:
+    _decode_gps_rmc(&data[SENSOR_BOARD_HEADER_BYTES], t_us);
+    break;
+
   case SENSOR_BOARD_CAN_ID_BARO1:
   case SENSOR_BOARD_CAN_ID_BARO2: {
     baro_data_t *d = &_data.baro[can_id - SENSOR_BOARD_CAN_ID_BARO1];
