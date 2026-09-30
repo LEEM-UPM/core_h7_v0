@@ -1,0 +1,135 @@
+BANCO DE PRUEBAS PIL - ASPID GNC
+generado 2026-08-21 00:19:20
+periodo de paso: 0.01 s (100 Hz)
+duracion: 210 s, 21001 pasos
+
+PRUEBA SECUENCIAL. Llamar <Modelo>_initialize() una vez y luego
+un <Modelo>_step() por fila, en orden. Los tres modelos tienen
+estado interno: reordenar o saltar filas invalida el resto.
+
+TOLERANCIAS. Enteros y flags: coincidencia EXACTA. Reales: error
+relativo 1e-4 con suelo absoluto 1e-3 (el Cortex-M7 no da bit a
+bit lo mismo que un x86).
+
+==================== Navigation ====================
+ENTRADAS  -> Navigation_U.NavIn
+   NavIn.imu_lowg.accel_mps2_1                  real32_T (float)
+   NavIn.imu_lowg.accel_mps2_2                  real32_T (float)
+   NavIn.imu_lowg.accel_mps2_3                  real32_T (float)
+   NavIn.imu_lowg.gyro_rps_1                    real32_T (float)
+   NavIn.imu_lowg.gyro_rps_2                    real32_T (float)
+   NavIn.imu_lowg.gyro_rps_3                    real32_T (float)
+   NavIn.imu_lowg.temp_C                        real32_T (float)
+   NavIn.imu_lowg.timestamp_s                   real_T   (double)
+   NavIn.imu_lowg.data_valid                    uint8_T
+   NavIn.imu_highg.accel_mps2_1                 real32_T (float)
+   NavIn.imu_highg.accel_mps2_2                 real32_T (float)
+   NavIn.imu_highg.accel_mps2_3                 real32_T (float)
+   NavIn.imu_highg.timestamp_s                  real_T   (double)
+   NavIn.imu_highg.data_valid                   uint8_T
+   NavIn.gnss.pos_lla_1                         real_T   (double)
+   NavIn.gnss.pos_lla_2                         real_T   (double)
+   NavIn.gnss.pos_lla_3                         real_T   (double)
+   NavIn.gnss.vel_ned_1                         real32_T (float)
+   NavIn.gnss.vel_ned_2                         real32_T (float)
+   NavIn.gnss.vel_ned_3                         real32_T (float)
+   NavIn.gnss.fix_type                          uint8_T
+   NavIn.gnss.num_sats                          uint8_T
+   NavIn.gnss.data_valid                        uint8_T
+SALIDAS   <- Navigation_Y.NavOut
+   NavOut.pos_ned_1                             real32_T (float)
+   NavOut.pos_ned_2                             real32_T (float)
+   NavOut.pos_ned_3                             real32_T (float)
+   NavOut.vel_ned_1                             real32_T (float)
+   NavOut.vel_ned_2                             real32_T (float)
+   NavOut.vel_ned_3                             real32_T (float)
+   NavOut.quat_nb_1                             real32_T (float)
+   NavOut.quat_nb_2                             real32_T (float)
+   NavOut.quat_nb_3                             real32_T (float)
+   NavOut.quat_nb_4                             real32_T (float)
+   NavOut.euler_rpy_1                           real32_T (float)
+   NavOut.euler_rpy_2                           real32_T (float)
+   NavOut.euler_rpy_3                           real32_T (float)
+   NavOut.accel_ned_1                           real32_T (float)
+   NavOut.accel_ned_2                           real32_T (float)
+   NavOut.accel_ned_3                           real32_T (float)
+   NavOut.accel_body_1                          real32_T (float)
+   NavOut.accel_body_2                          real32_T (float)
+   NavOut.accel_body_3                          real32_T (float)
+   NavOut.gyro_body_1                           real32_T (float)
+   NavOut.gyro_body_2                           real32_T (float)
+   NavOut.gyro_body_3                           real32_T (float)
+   NavOut.accel_bias_1                          real32_T (float)
+   NavOut.accel_bias_2                          real32_T (float)
+   NavOut.accel_bias_3                          real32_T (float)
+   NavOut.gyro_bias_1                           real32_T (float)
+   NavOut.gyro_bias_2                           real32_T (float)
+   NavOut.gyro_bias_3                           real32_T (float)
+   NavOut.imu_blend_w                           real32_T (float)
+   NavOut.gnss_age_s                            real32_T (float)
+   NavOut.timestamp_s                           real_T   (double)
+   NavOut.nav_valid                             uint8_T
+
+==================== StateMachine ====================
+ENTRADAS  -> StateMachine_U.SMIn
+   SMIn.pos_ned_1                               real32_T (float)
+   SMIn.pos_ned_2                               real32_T (float)
+   SMIn.pos_ned_3                               real32_T (float)
+   SMIn.vel_ned_1                               real32_T (float)
+   SMIn.vel_ned_2                               real32_T (float)
+   SMIn.vel_ned_3                               real32_T (float)
+   SMIn.accel_ned_1                             real32_T (float)
+   SMIn.accel_ned_2                             real32_T (float)
+   SMIn.accel_ned_3                             real32_T (float)
+   SMIn.accel_body_1                            real32_T (float)
+   SMIn.accel_body_2                            real32_T (float)
+   SMIn.accel_body_3                            real32_T (float)
+   SMIn.gyro_body_1                             real32_T (float)
+   SMIn.gyro_body_2                             real32_T (float)
+   SMIn.gyro_body_3                             real32_T (float)
+   SMIn.gnss_age_s                              real32_T (float)
+   SMIn.nav_valid                               uint8_T
+   SMIn.timestamp_s                             real_T   (double)
+   SMIn.telemetry_cmd.cmd_id                    uint8_T
+   SMIn.telemetry_cmd.cmd_param                 real32_T (float)
+   SMIn.telemetry_cmd.cmd_valid                 uint8_T
+SALIDAS   <- StateMachine_Y.SMOut
+   SMOut.rocket_state                           int32_T
+   SMOut.prev_state                             int32_T
+   SMOut.time_in_state_s                        real32_T (float)
+   SMOut.error_code                             uint8_T
+   SMOut.timestamp_s                            real_T   (double)
+
+==================== GuidanceControl ====================
+ENTRADAS  -> GuidanceControl_U.GCIn
+   GCIn.pos_ned_1                               real32_T (float)
+   GCIn.pos_ned_2                               real32_T (float)
+   GCIn.pos_ned_3                               real32_T (float)
+   GCIn.vel_ned_1                               real32_T (float)
+   GCIn.vel_ned_2                               real32_T (float)
+   GCIn.vel_ned_3                               real32_T (float)
+   GCIn.accel_ned_1                             real32_T (float)
+   GCIn.accel_ned_2                             real32_T (float)
+   GCIn.accel_ned_3                             real32_T (float)
+   GCIn.accel_body_1                            real32_T (float)
+   GCIn.accel_body_2                            real32_T (float)
+   GCIn.accel_body_3                            real32_T (float)
+   GCIn.gnss_age_s                              real32_T (float)
+   GCIn.nav_valid                               uint8_T
+   GCIn.timestamp_s                             real_T   (double)
+   GCIn.rocket_state                            int32_T
+   GCIn.telemetry_cmd.cmd_id                    uint8_T
+   GCIn.telemetry_cmd.cmd_param                 real32_T (float)
+   GCIn.telemetry_cmd.cmd_valid                 uint8_T
+SALIDAS   <- GuidanceControl_Y.GCOut
+   GCOut.actuator_cmd                           real32_T (float)
+   GCOut.airbrake_deg                           real32_T (float)
+   GCOut.apogee_pred_m                          real32_T (float)
+   GCOut.apogee_error_m                         real32_T (float)
+   GCOut.time_to_apogee_s                       real32_T (float)
+   GCOut.drogue_deploy_flag                     uint8_T
+   GCOut.main_deploy_flag                       uint8_T
+   GCOut.flight_phase                           int32_T
+   GCOut.pred_valid                             uint8_T
+   GCOut.timestamp_s                            real_T   (double)
+

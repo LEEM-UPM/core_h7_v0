@@ -31,7 +31,43 @@ target_compile_definitions(project_config INTERFACE
     FX_INCLUDE_USER_DEFINE_FILE
 )
 
-add_executable(${CMAKE_PROJECT_NAME})
+add_executable(${CMAKE_PROJECT_NAME}
+    # FDCAN network 
+    Core/Inc/ASPID_FDCAN_NETWORK.h
+    # guidance control header files
+    Code_V_1_1_2/GuidanceControl_ert_rtw/GuidanceControl_Private.h
+    Code_V_1_1_2/GuidanceControl_ert_rtw/GuidanceControl_types.h
+    Code_V_1_1_2/GuidanceControl_ert_rtw/GuidanceControl.h
+    Code_V_1_1_2/GuidanceControl_ert_rtw/rt_nonfinite.h
+    Code_V_1_1_2/GuidanceControl_ert_rtw/rtGetInf.h
+    Code_V_1_1_2/GuidanceControl_ert_rtw/rtwtypes.h
+
+    # navigation header files
+    Code_V_1_1_2/Navigation_ert_rtw/Navigation_private.h
+    Code_V_1_1_2/Navigation_ert_rtw/Navigation_types.h
+    Code_V_1_1_2/Navigation_ert_rtw/Navigation.h
+    Code_V_1_1_2/Navigation_ert_rtw/rt_defines.h
+    # Code_V_1_1_2/Navigation_ert_rtw/rt_nonfinite.h
+    # Code_V_1_1_2/Navigation_ert_rtw/rtGetInf.h
+    Code_V_1_1_2/Navigation_ert_rtw/rtGetNaN.h
+    # Code_V_1_1_2/Navigation_ert_rtw/rtwtypes.h
+
+    # state machine header files
+    Code_V_1_1_2/StateMachine_ert_rtw/StateMachine_private.h
+    Code_V_1_1_2/StateMachine_ert_rtw/StateMachine_types.h
+    Code_V_1_1_2/StateMachine_ert_rtw/StateMachine.h
+    # Code_V_1_1_2/StateMachine_ert_rtw/rt_nonfinite.h
+    # Code_V_1_1_2/StateMachine_ert_rtw/rtGetInf.h
+    # Code_V_1_1_2/StateMachine_ert_rtw/rtwtypes.h
+)
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/poc
+    ${CMAKE_CURRENT_SOURCE_DIR}/Code_V_1_1_2/GuidanceControl_ert_rtw
+    ${CMAKE_CURRENT_SOURCE_DIR}/Code_V_1_1_2/Navigation_ert_rtw
+    ${CMAKE_CURRENT_SOURCE_DIR}/Code_V_1_1_2/StateMachine_ert_rtw
+)
 
 add_subdirectory(cmake/stm32cubemx)
 add_subdirectory(third_party/middlewares/threadx)
@@ -39,7 +75,33 @@ add_subdirectory(third_party/middlewares/filex)
 add_subdirectory(bsp)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    poc/usd_filex_dma/main.c
+    # poc/usd_filex_dma/main.c
+    poc/gnc_software.c
+
+    # FDCAN NETWORK source files
+    Core/Src/ASPID_FDCAN_NETWORK.c
+
+    # GuidanceControl source files
+    # Code_V_1_1_2/GuidanceControl_ert_rtw/ert_main.c
+    Code_V_1_1_2/GuidanceControl_ert_rtw/GuidanceControl_data.c
+    Code_V_1_1_2/GuidanceControl_ert_rtw/GuidanceControl.c
+    Code_V_1_1_2/GuidanceControl_ert_rtw/rt_nonfinite.c
+    Code_V_1_1_2/GuidanceControl_ert_rtw/rtGetInf.c
+    Code_V_1_1_2/GuidanceControl_ert_rtw/rtGetNan.c
+    
+    # Navigation source files
+    # Code_V_1_1_2/Navigation_ert_rtw/ert_main.c
+    Code_V_1_1_2/Navigation_ert_rtw/Navigation_data.c
+    Code_V_1_1_2/Navigation_ert_rtw/Navigation.c
+    # Code_V_1_1_2/Navigation_ert_rtw/rt_nonfinite.c
+    # Code_V_1_1_2/Navigation_ert_rtw/rtGetInf.c
+    # Code_V_1_1_2/Navigation_ert_rtw/rtGetNan.c
+
+    # StateMachine source files
+    # Code_V_1_1_2/StateMachine_ert_rtw/ert_main.c
+    # Code_V_1_1_2/StateMachine_ert_rtw/rt_nonfinite.c
+    # Code_V_1_1_2/StateMachine_ert_rtw/rtGetInf.c
+    Code_V_1_1_2/StateMachine_ert_rtw/StateMachine.c
 )
 
 target_link_libraries(${PROJECT_NAME}
